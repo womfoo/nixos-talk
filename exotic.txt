@@ -1,0 +1,64 @@
+% Introduction to NixOS
+% Kranium Gikos Mendoza
+% September 12, 2016
+
+# Agenda
+
+- Nix Ecosystem
+- Pros and Cons
+- Demo
+
+# Nix Ecosystem
+
+## Phd thesis
+
+
+
+
+## What is Nix
+
+1. Nix
+2. Nix(pkgs)
+3. Nix(OS)
+4. Nix(Ops)
+
+
+
+
+
+~~~~ {#mycode .hcl .numberLines startFrom="100"}
+{ system, bootStdenv, noSysDirs, config, crossSystem, platform, lib
+, pkgsWithOverrides
+, ... }:
+self: pkgs:
+
+with pkgs;
+
+let
+  defaultScope = pkgs // pkgs.xorg;
+in
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- Turn off alarm
+- Get out of bed
+
+## Breakfast
+
+- Eat eggs
+- Drink coffee
+
+# In the evening
+
+## Dinner
+
+- Eat spaghetti
+- Drink wine
+
+------------------
+
+![picture of spaghetti](images/spaghetti.jpg)
+
+## Going to sleep
+
+- Get in bed
+- Count sheep
+
