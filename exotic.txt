@@ -1,64 +1,215 @@
-% Introduction to NixOS
+% "Exotic" Linux: NixOS
 % Kranium Gikos Mendoza
-% September 12, 2016
+% September 14, 2016
 
 # Agenda
 
-- Nix Ecosystem
-- Pros and Cons
-- Demo
+- - NixOS Overview
+- - Nix tools
+- - Demo
 
-# Nix Ecosystem
+----
 
-## Phd thesis
+# NixOS
 
+----
 
+## Research Papers
 
+### 2004
 
-## What is Nix
+[Nix: A Safe and Policy-Free System for Software Deployment](https://nixos.org/~eelco/pubs/nspfssd-lisa2004-final.pdf)
 
-1. Nix
-2. Nix(pkgs)
-3. Nix(OS)
-4. Nix(Ops)
+Eelco Dolstra and Merijn de Jonge and Eelco Visser
 
+### 2006
 
+[NixOS: The Purely Functional Software Deployment Model](https://nixos.org/~eelco/pubs/phd-thesis.pdf)
 
+Eelco Dolstra, PhD thesis
 
+----
 
-~~~~ {#mycode .hcl .numberLines startFrom="100"}
-{ system, bootStdenv, noSysDirs, config, crossSystem, platform, lib
-, pkgsWithOverrides
-, ... }:
-self: pkgs:
+## Just like most distros
+
+![](kde-nixos.png)
+
+----
+
+|                           | Debian/Ubuntu              | NixOS                                 |
+|---------------------------+----------------------------+---------------------------------------|
+| Find packages             | apt-cache search emacs     | nix-env -qaP '.*emacs.*'              |
+| Show package description  | apt-cache show emacs       | nix-env -qa --description '.*emacs.*' |
+| Install package           | sudo apt-get install emacs | nix-env -i emacs                      |
+| Remove package            | sudo apt-get remove emacs  | nix-env -e emacs                      |
+
+----
+
+## Where are my programs?
+
+~~~~ {.bash}
+$ /bin/bash
+bash: /bin/bash: No such file or directory
+
+$ which bash
+/run/current-system/sw/bin/bash
+
+$ readlink `which bash`
+/nix/store/a9ppb3gsh29rbzbm15a267wv4bzf8z37-bash-4.3-p46/bin/bash
+
+$ ls -1d /nix/store/*-bash-*/bin/bash
+/nix/store/a9ppb3gsh29rbzbm15a267wv4bzf8z37-bash-4.3-p46/bin/bash
+/nix/store/d44582rghk696yw704sh5nbvbpnm69iv-bash-4.3-p42/bin/bash
+/nix/store/nyj6xd7s1n1w8c0xdwk5ddhi7bjcyi9x-bash-4.3-p46/bin/bash
+/nix/store/w65famigr5b87lwnqs72dm4yx192ddli-bash-4.3-p46/bin/bash
+/nix/store/x9z39620crc9d5lbrcsqzzsiifnsszql-bash-4.3-p46/bin/bash
+~~~~
+
+----
+
+![](lolwut.jpg)
+
+----
+
+## Functional Programming
+
+![](01-func-white.svg)
+
+- 𝒇(1) = A
+- 𝒇(2) = B
+- 𝒇(3) = C
+
+-----
+
+- 𝒇(1) = A
+- 𝒇(1) = B
+- 𝒇(2) = C
+- not valid!
+
+-----
+
+![](02-plus-white.svg)
+
+- add(1,1) = 2
+
+----
+
+![](03-package-simple-white.svg)
+
+----
+
+![](04-package-complete-white.svg)
+
+----
+
+## Defining packages in Nix - Expression Language
+
+~~~~ {.bash}
+{ stdenv, fetchFromGitHub, autoreconfHook, ncurses }:
+
+stdenv.mkDerivation rec {
+  name = "pick-${version}";
+  version = "1.4.0";
+
+  buildInputs = [ autoreconfHook ncurses ];
+
+  src = fetchFromGitHub {
+    owner = "thoughtbot";
+    repo = "pick";
+    rev = "v${version}";
+    sha256 = "113if0jh7svwrwrxhrsbi7h1whfr5707v2ny4djbv6b9pg";
+  };
+
+}
+~~~~
+
+----
+
+### nix-shell - definition
+
+define a `shell.nix`
+
+~~~~ {.bash}
+{ pkgs ? import <nixpkgs> {} }:
 
 with pkgs;
 
-let
-  defaultScope = pkgs // pkgs.xorg;
-in
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-- Turn off alarm
-- Get out of bed
+stdenv.mkDerivation {
+  name = "jq-testing";
 
-## Breakfast
+  buildInputs =  [ curl jq ];
 
-- Eat eggs
-- Drink coffee
+  shellHook = ''
+    echo "hey! nix-shell runs this when invoked!"
+    curl http://rest-service.guides.spring.io/greeting | jq
+  '';
+}
+~~~~
 
-# In the evening
+----
 
-## Dinner
+### nix-shell - usage
 
-- Eat spaghetti
-- Drink wine
+~~~~ {.bash}
+$ nix-shell 
+hey! nix-shell runs this when invoked!
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    35  100    35    0     0     64      0 --:--:-- --:--:-- --:--:--    67
+{
+  "id": 69,
+  "content": "Hello, World!"
+}
+[nix-shell:~]$
+~~~~
 
-------------------
 
-![picture of spaghetti](images/spaghetti.jpg)
+invoking packages manually
 
-## Going to sleep
+~~~~ {.bash}
+$ top -v
+  procps-ng 3.3.11
+Usage:
+  top -hv | -bcHiOSs -d secs -n max -u|U user -p pid(s) -o field -w [cols]
 
-- Get in bed
-- Count sheep
+$ nix-shell -p curl -p jq --pure
 
+[nix-shell:~]$ top
+The program ‘top’ is currently not installed. It is provided by
+several packages. You can install it by typing one of the following:
+  nix-env -iA nixos.busybox
+  nix-env -iA nixos.procps
+~~~~
+
+----
+
+## Nixpkgs
+
+git repo of nix expressions for Linux and OSX
+![](nixpkgs.png)
+
+----
+
+## NixOS Declarative configuration
+
+----
+
+## Further Reading/Watching
+
+- - RTFM [Nix](https://nixos.org/nix/manual)/[Nixpkgs](https://nixos.org/nixpkgs/manual)/[NixOS](https://nixos.org/nixos/manual) Manuals
+- - [NixPills](http://lethalman.blogspot.my)
+- - [Nix Cookbook](http://funops.co/nix-cookbook)
+- - [NixOS: Declarative Linux Distribution & Purely Functional Package Management](https://www.youtube.com/watch?v=b1UoMevTgBw) (video)
+- - [From Zero to Application Delivery with NixOS](https://www.infoq.com/presentations/nixos) (video)
+
+-----
+
+# Demo
+
+----
+
+![](magic.gif)
+
+-----
+
+## Questions?

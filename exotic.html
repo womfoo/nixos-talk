@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="Kranium Gikos Mendoza">
+  <meta name="dcterms.date" content="2016-09-14">
+  <title>&quot;Exotic&quot; Linux: NixOS</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <style type="text/css">
+    .reveal .author { font-size: 1.3em; }
+    .reveal .date { font-size: 1.0em; }
+  </style>
+  <link rel="stylesheet" href="reveal.js/css/reveal.css">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="reveal.js/css/theme/black.css" id="theme">
+  <!-- Printing and PDF exports -->
+  <script>
+    var link = document.createElement( 'link' );
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal.js/css/print/pdf.css' : 'reveal.js/css/print/paper.css';
+    document.getElementsByTagName( 'head' )[0].appendChild( link );
+  </script>
+  <!--[if lt IE 9]>
+  <script src="reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+  <h1 class="title">&quot;Exotic&quot; Linux: NixOS</h1>
+  <h2 class="author">Kranium Gikos Mendoza</h2>
+  <h3 class="date">September 14, 2016</h3>
+</section>
+
+<section id="agenda" class="slide level1">
+<h1>Agenda</h1>
+<ul>
+<li class="fragment"><ul>
+<li class="fragment">NixOS Overview</li>
+</ul></li>
+<li class="fragment"><ul>
+<li class="fragment">Nix tools</li>
+</ul></li>
+<li class="fragment"><ul>
+<li class="fragment">Demo</li>
+</ul></li>
+</ul>
+</section>
+<section id="nixos" class="slide level1">
+<h1>NixOS</h1>
+</section>
+<section class="slide level1">
+
+<h2 id="research-papers">Research Papers</h2>
+<h3 id="section">2004</h3>
+<p><a href="https://nixos.org/~eelco/pubs/nspfssd-lisa2004-final.pdf">Nix: A Safe and Policy-Free System for Software Deployment</a></p>
+<p>Eelco Dolstra and Merijn de Jonge and Eelco Visser</p>
+<h3 id="section-1">2006</h3>
+<p><a href="https://nixos.org/~eelco/pubs/phd-thesis.pdf">NixOS: The Purely Functional Software Deployment Model</a></p>
+<p>Eelco Dolstra, PhD thesis</p>
+</section>
+<section class="slide level1">
+
+<h2 id="just-like-most-distros">Just like most distros</h2>
+<figure>
+<img src="kde-nixos.png" />
+</figure>
+</section>
+<section class="slide level1">
+
+<table style="width:100%;">
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 29%" />
+<col style="width: 41%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Debian/Ubuntu</th>
+<th>NixOS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Find packages</td>
+<td>apt-cache search emacs</td>
+<td>nix-env -qaP '.<em>emacs.</em>'</td>
+</tr>
+<tr class="even">
+<td>Show package description</td>
+<td>apt-cache show emacs</td>
+<td>nix-env -qa --description '.<em>emacs.</em>'</td>
+</tr>
+<tr class="odd">
+<td>Install package</td>
+<td>sudo apt-get install emacs</td>
+<td>nix-env -i emacs</td>
+</tr>
+<tr class="even">
+<td>Remove package</td>
+<td>sudo apt-get remove emacs</td>
+<td>nix-env -e emacs</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="slide level1">
+
+<h2 id="where-are-my-programs">Where are my programs?</h2>
+<pre class="bash"><code>$ /bin/bash
+bash: /bin/bash: No such file or directory
+
+$ which bash
+/run/current-system/sw/bin/bash
+
+$ readlink `which bash`
+/nix/store/a9ppb3gsh29rbzbm15a267wv4bzf8z37-bash-4.3-p46/bin/bash
+
+$ ls -1d /nix/store/*-bash-*/bin/bash
+/nix/store/a9ppb3gsh29rbzbm15a267wv4bzf8z37-bash-4.3-p46/bin/bash
+/nix/store/d44582rghk696yw704sh5nbvbpnm69iv-bash-4.3-p42/bin/bash
+/nix/store/nyj6xd7s1n1w8c0xdwk5ddhi7bjcyi9x-bash-4.3-p46/bin/bash
+/nix/store/w65famigr5b87lwnqs72dm4yx192ddli-bash-4.3-p46/bin/bash
+/nix/store/x9z39620crc9d5lbrcsqzzsiifnsszql-bash-4.3-p46/bin/bash</code></pre>
+</section>
+<section class="slide level1">
+
+<figure>
+<img src="lolwut.jpg" />
+</figure>
+</section>
+<section class="slide level1">
+
+<h2 id="functional-programming">Functional Programming</h2>
+<figure>
+<img src="01-func-white.svg" />
+</figure>
+<ul>
+<li class="fragment">𝒇(1) = A</li>
+<li class="fragment">𝒇(2) = B</li>
+<li class="fragment">𝒇(3) = C</li>
+</ul>
+</section>
+<section class="slide level1">
+
+<ul>
+<li class="fragment">𝒇(1) = A</li>
+<li class="fragment">𝒇(1) = B</li>
+<li class="fragment">𝒇(2) = C</li>
+<li class="fragment">not valid!</li>
+</ul>
+</section>
+<section class="slide level1">
+
+<figure>
+<img src="02-plus-white.svg" />
+</figure>
+<ul>
+<li class="fragment">add(1,1) = 2</li>
+</ul>
+</section>
+<section class="slide level1">
+
+<figure>
+<img src="03-package-simple-white.svg" />
+</figure>
+</section>
+<section class="slide level1">
+
+<figure>
+<img src="04-package-complete-white.svg" />
+</figure>
+</section>
+<section class="slide level1">
+
+<h2 id="defining-packages-in-nix---expression-language">Defining packages in Nix - Expression Language</h2>
+<pre class="bash"><code>{ stdenv, fetchFromGitHub, autoreconfHook, ncurses }:
+
+stdenv.mkDerivation rec {
+  name = &quot;pick-${version}&quot;;
+  version = &quot;1.4.0&quot;;
+
+  buildInputs = [ autoreconfHook ncurses ];
+
+  src = fetchFromGitHub {
+    owner = &quot;thoughtbot&quot;;
+    repo = &quot;pick&quot;;
+    rev = &quot;v${version}&quot;;
+    sha256 = &quot;113if0jh7svwrwrxhrsbi7h1whfr5707v2ny4djbv6b9pg&quot;;
+  };
+
+}</code></pre>
+</section>
+<section class="slide level1">
+
+<h3 id="nix-shell---definition">nix-shell - definition</h3>
+<p>define a <code>shell.nix</code></p>
+<pre class="bash"><code>{ pkgs ? import &lt;nixpkgs&gt; {} }:
+
+with pkgs;
+
+stdenv.mkDerivation {
+  name = &quot;jq-testing&quot;;
+
+  buildInputs =  [ curl jq ];
+
+  shellHook = &#39;&#39;
+    echo &quot;hey! nix-shell runs this when invoked!&quot;
+    curl http://rest-service.guides.spring.io/greeting | jq
+  &#39;&#39;;
+}</code></pre>
+</section>
+<section class="slide level1">
+
+<h3 id="nix-shell---usage">nix-shell - usage</h3>
+<pre class="bash"><code>$ nix-shell 
+hey! nix-shell runs this when invoked!
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    35  100    35    0     0     64      0 --:--:-- --:--:-- --:--:--    67
+{
+  &quot;id&quot;: 69,
+  &quot;content&quot;: &quot;Hello, World!&quot;
+}
+[nix-shell:~]$</code></pre>
+<p>invoking packages manually</p>
+<pre class="bash"><code>$ top -v
+  procps-ng 3.3.11
+Usage:
+  top -hv | -bcHiOSs -d secs -n max -u|U user -p pid(s) -o field -w [cols]
+
+$ nix-shell -p curl -p jq --pure
+
+[nix-shell:~]$ top
+The program ‘top’ is currently not installed. It is provided by
+several packages. You can install it by typing one of the following:
+  nix-env -iA nixos.busybox
+  nix-env -iA nixos.procps</code></pre>
+</section>
+<section class="slide level1">
+
+<h2 id="nixpkgs">Nixpkgs</h2>
+<p>git repo of nix expressions for Linux and OSX <img src="nixpkgs.png" /></p>
+</section>
+<section class="slide level1">
+
+<h2 id="nixos-declarative-configuration">NixOS Declarative configuration</h2>
+</section>
+<section class="slide level1">
+
+<h2 id="further-readingwatching">Further Reading/Watching</h2>
+<ul>
+<li class="fragment"><ul>
+<li class="fragment">RTFM <a href="https://nixos.org/nix/manual">Nix</a>/<a href="https://nixos.org/nixpkgs/manual">Nixpkgs</a>/<a href="https://nixos.org/nixos/manual">NixOS</a> Manuals</li>
+</ul></li>
+<li class="fragment"><ul>
+<li class="fragment"><a href="http://lethalman.blogspot.my">NixPills</a></li>
+</ul></li>
+<li class="fragment"><ul>
+<li class="fragment"><a href="http://funops.co/nix-cookbook">Nix Cookbook</a></li>
+</ul></li>
+<li class="fragment"><ul>
+<li class="fragment"><a href="https://www.youtube.com/watch?v=b1UoMevTgBw">NixOS: Declarative Linux Distribution &amp; Purely Functional Package Management</a> (video)</li>
+</ul></li>
+<li class="fragment"><ul>
+<li class="fragment"><a href="https://www.infoq.com/presentations/nixos">From Zero to Application Delivery with NixOS</a> (video)</li>
+</ul></li>
+</ul>
+</section>
+<section id="demo" class="slide level1">
+<h1>Demo</h1>
+</section>
+<section class="slide level1">
+
+<figure>
+<img src="magic.gif" />
+</figure>
+</section>
+<section class="slide level1">
+
+<h2 id="questions">Questions?</h2>
+</section>
+    </div>
+  </div>
+
+  <script src="reveal.js/lib/js/head.min.js"></script>
+  <script src="reveal.js/js/reveal.js"></script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: 'reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'reveal.js/plugin/zoom-js/zoom.js', async: true },
+          { src: 'reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'reveal.js/plugin/notes/notes.js', async: true }
+        ]
+      });
+    </script>
+    </body>
+</html>
